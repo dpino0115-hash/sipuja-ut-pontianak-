@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIPUJA UT Pontianak — Sistem Pengajuan Ubah Jadwal Ujian</title>
+<style>
+:root {
+    --navy: #12345a; --blue: #1d5f9e; --gold: #e8b84a; --bg: #f3f6fa;
+    --ink: #172b42; --muted: #64748b; --line: #dce4ed; --white: #fff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.5 system-ui, -apple-system, Roboto, Arial, sans-serif; background: var(--bg); color: var(--ink); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 600; }
+.primary { background: var(--blue); color: #fff; }
+.primary:hover { background: #144778; }
+.secondary { background: #e8eef6; color: var(--navy); }
+
+/* Header sesuai desain gambar */
+.top { background: linear-gradient(120deg, #102d4e, #1d5f9e); color: white; padding: 18px max(18px, calc((100% - 1160px)/2)); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; gap: 12px; align-items: center; }
+.logo { width: 44px; height: 44px; border-radius: 12px; background: var(--gold); color: #173653; display: grid; place-items: center; font-weight: 900; font-size: 18px; }
+.brand h1 { margin: 0; font-size: 20px; }
+.brand p { margin: 2px 0 0; color: #d6e5f6; font-size: 12px; }
+.top small { color: #d6e5f6; }
+
+.wrap { max-width: 1160px; margin: 20px auto; padding: 0 16px; }
+.notice { padding: 12px 16px; border-radius: 10px; background: #fff7df; border: 1px solid #f1d994; color: #694f11; margin-bottom: 18px; font-size: 13px; }
+
+/* Menu Navigasi Tab */
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.tab { background: #e6edf5; color: #23445f; border-radius: 8px; padding: 10px 16px; }
+.tab.active { background: var(--navy); color: white; }
+
+.panel { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 24px; box-shadow: 0 4px 12px #1c365008; }
+.panel h2 { margin: 0 0 4px; font-size: 20px; color: var(--ink); }
+.sub { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+
+/* Layout Grid Isian */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: 13px; font-weight: 700; color: #344b63; }
+label.req::after { content: " *"; color: red; }
+input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd7e4; border-radius: 8px; background: white; color: var(--ink); }
+textarea { min-height: 80px; resize: vertical; }
+
+.mk-card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 14px; border-radius: 8px; margin-bottom: 12px; }
+.mk-card h4 { margin: 0 0 10px; color: var(--blue); font-size: 14px; }
+
+.actions { display: flex; gap: 10px; margin-top: 20px; }
+.ticket-box { background: #eef6ff; border: 1px dashed var(--blue); padding: 16px; border-radius: 8px; margin-top: 16px; color: var(--navy); }
+.hidden { display: none !important; }
+
+@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+    <div class="brand">
+        <div class="logo">UT</div>
+        <div>
+            <h1>SIPUJA UT Pontianak</h1>
+            <p>Sistem Informasi Pengajuan Ubah Jadwal Ujian</p>
+        </div>
+    </div>
+    <small>SISTEM PENGAJUAN ONLINE TERINTEGRASI</small>
+</header>
+
+<main class="wrap">
+    <div class="notice">
+        <strong>Catatan penting:</strong> Pastikan seluruh data diri dan pilihan jadwal ujian terisi dengan benar sebelum mengirimkan formulir.
+    </div>
+
+    <!-- Menu Sesuai Gambar -->
+    <nav class="tabs">
+        <button class="tab active" type="button">Pengajuan Mahasiswa</button>
+        <button class="tab" type="button" onclick="alert('Fitur Lacak Pengajuan dapat dikembangkan di tahap berikutnya.')">Lacak Pengajuan</button>
+        <button class="tab" type="button" onclick="alert('Buka Google Sheets Anda untuk melihat Dashboard Petugas.')">Dashboard Petugas</button>
+    </nav>
+
+    <section class="panel">
+        <h2>Formulir Pengajuan Ubah Jadwal Ujian</h2>
+        <p class="sub">Isi data dengan lengkap. Pengajuan belum berarti permohonan disetujui.</p>
+
+        <form id="sipujaForm">
+            <div class="grid">
+                <div class="field">
+                    <label class="req">Nama lengkap</label>
+                    <input type="text" id="name" required placeholder="Nama mahasiswa">
+                </div>
+
+                <div class="field">
+                    <label class="req">NIM</label>
+                    <input type="text" id="nim" required placeholder="Nomor Induk Mahasiswa">
+                </div>
+
+                <div class="field">
+                    <label class="req">Kabupaten Domisili</label>
+                    <input type="text" id="kabupaten" required placeholder="Kabupaten / Kota asal">
+                </div>
+
+                <div class="field">
+                    <label class="req">Nomor WhatsApp</label>
+                    <input type="tel" id="phone" required placeholder="Contoh: 08xxxxxxxxxx">
+                </div>
+
+                <div class="field full">
+                    <label class="req">Kabupaten Ujian Terbaru</label>
+                    <input type="text" id="kabupatenUjianBaru" required placeholder="Lokasi Kabupaten tempat ujian yang diinginkan">
+                </div>
+            </div>
+
+            <hr style="margin: 24px 0; border: 0; border-top: 1px solid var(--line);">
+
+            <h3>Mata Kuliah & Tanggal Ujian Terbaru (Maksimal 5 MK)</h3>
+            <p class="sub">Mata Kuliah 1 Wajib Diisi. Mata Kuliah 2 s.d 5 bersifat Opsional.</p>
+
+            <!-- MK 1 (WAJIB) -->
+            <div class="mk-card">
+                <h4>Mata Kuliah 1 (Wajib)</h4>
+                <div class="grid">
+                    <div class="field">
+                        <label class="req">Nama & Kode Matakuliah</label>
+                        <input type="text" id="mk1" required placeholder="Contoh: EKMA4111 - Pengantar Bisnis">
+                    </div>
+                    <div class="field">
+                        <label class="req">Tanggal Ujian Terbaru</label>
+                        <select id="tgl1" required>
+                            <option value="">-- Pilih Tanggal Ujian --</option>
+                            <option value="28/11/2026">28/11/2026</option>
+                            <option value="29/11/2026">29/11/2026</option>
+                            <option value="05/12/2026">05/12/2026</option>
+                            <option value="06/12/2026">06/12/2026</option>
+                            <option value="12/12/2026">12/12/2026</option>
+                            <option value="13/12/2026">13/12/2026</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MK 2 (OPSIONAL) -->
+            <div class="mk-card">
+                <h4>Mata Kuliah 2 (Opsional)</h4>
+                <div class="grid">
+                    <div class="field">
+                        <label>Nama & Kode Matakuliah</label>
+                        <input type="text" id="mk2" placeholder="Nama & Kode MK 2">
+                    </div>
+                    <div class="field">
+                        <label>Tanggal Ujian Terbaru</label>
+                        <select id="tgl2">
+                            <option value="">-- Pilih Tanggal Ujian --</option>
+                            <option value="28/11/2026">28/11/2026</option>
+                            <option value="29/11/2026">29/11/2026</option>
+                            <option value="05/12/2026">05/12/2026</option>
+                            <option value="06/12/2026">06/12/2026</option>
+                            <option value="12/12/2026">12/12/2026</option>
+                            <option value="13/12/2026">13/12/2026</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MK 3 (OPSIONAL) -->
+            <div class="mk-card">
+                <h4>Mata Kuliah 3 (Opsional)</h4>
+                <div class="grid">
+                    <div class="field">
+                        <label>Nama & Kode Matakuliah</label>
+                        <input type="text" id="mk3" placeholder="Nama & Kode MK 3">
+                    </div>
+                    <div class="field">
+                        <label>Tanggal Ujian Terbaru</label>
+                        <select id="tgl3">
+                            <option value="">-- Pilih Tanggal Ujian --</option>
+                            <option value="28/11/2026">28/11/2026</option>
+                            <option value="29/11/2026">29/11/2026</option>
+                            <option value="05/12/2026">05/12/2026</option>
+                            <option value="06/12/2026">06/12/2026</option>
+                            <option value="12/12/2026">12/12/2026</option>
+                            <option value="13/12/2026">13/12/2026</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MK 4 (OPSIONAL) -->
+            <div class="mk-card">
+                <h4>Mata Kuliah 4 (Opsional)</h4>
+                <div class="grid">
+                    <div class="field">
+                        <label>Nama & Kode Matakuliah</label>
+                        <input type="text" id="mk4" placeholder="Nama & Kode MK 4">
+                    </div>
+                    <div class="field">
+                        <label>Tanggal Ujian Terbaru</label>
+                        <select id="tgl4">
+                            <option value="">-- Pilih Tanggal Ujian --</option>
+                            <option value="28/11/2026">28/11/2026</option>
+                            <option value="29/11/2026">29/11/2026</option>
+                            <option value="05/12/2026">05/12/2026</option>
+                            <option value="06/12/2026">06/12/2026</option>
+                            <option value="12/12/2026">12/12/2026</option>
+                            <option value="13/12/2026">13/12/2026</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MK 5 (OPSIONAL) -->
+            <div class="mk-card">
+                <h4>Mata Kuliah 5 (Opsional)</h4>
+                <div class="grid">
+                    <div class="field">
+                        <label>Nama & Kode Matakuliah</label>
+                        <input type="text" id="mk5" placeholder="Nama & Kode MK 5">
+                    </div>
+                    <div class="field">
+                        <label>Tanggal Ujian Terbaru</label>
+                        <select id="tgl5">
+                            <option value="">-- Pilih Tanggal Ujian --</option>
+                            <option value="28/11/2026">28/11/2026</option>
+                            <option value="29/11/2026">29/11/2026</option>
+                            <option value="05/12/2026">05/12/2026</option>
+                            <option value="06/12/2026">06/12/2026</option>
+                            <option value="12/12/2026">12/12/2026</option>
+                            <option value="13/12/2026">13/12/2026</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field full" style="margin-top: 15px;">
+                <label class="req">Alasan Pengajuan</label>
+                <textarea id="reason" required placeholder="Jelaskan alasan dan kondisi permohonan perubahan jadwal..."></textarea>
+            </div>
+
+            <div class="actions">
+                <button type="submit" id="submitBtn" class="primary">Kirim Pengajuan</button>
+                <button type="reset" class="secondary">Bersihkan Formulir</button>
+            </div>
+        </form>
+
+        <div id="resultBox" class="ticket-box hidden"></div>
+    </section>
+</main>
+
+<script>
+    // MASUKKAN URL WEB APP DARI LANGKAH 2 KE SINI:
+    const SCRIPT_URL = https://script.google.com/macros/s/AKfycbzFUsR2vSRUBiOxgQLxVUhkYLTVmB0FmhCyOLlp-e82fcJi8MzlqYjwJDo7e3bTF1tx/exec;
+
+    function generateTicket() {
+        const d = new Date();
+        return "SJP-" + d.getFullYear() + "-" + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    document.getElementById("sipujaForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const btn = document.getElementById("submitBtn");
+        const resultBox = document.getElementById("resultBox");
+
+        btn.disabled = true;
+        btn.textContent = "Sedang Mengirim...";
+
+        const ticketNo = generateTicket();
+
+        const payload = {
+            ticket: ticketNo,
+            name: document.getElementById("name").value.trim(),
+            nim: document.getElementById("nim").value.trim(),
+            kabupaten: document.getElementById("kabupaten").value.trim(),
+            phone: document.getElementById("phone").value.trim(),
+            kabupatenUjianBaru: document.getElementById("kabupatenUjianBaru").value.trim(),
+            mk1: document.getElementById("mk1").value.trim(),
+            tgl1: document.getElementById("tgl1").value,
+            mk2: document.getElementById("mk2").value.trim(),
+            tgl2: document.getElementById("tgl2").value,
+            mk3: document.getElementById("mk3").value.trim(),
+            tgl3: document.getElementById("tgl3").value,
+            mk4: document.getElementById("mk4").value.trim(),
+            tgl4: document.getElementById("tgl4").value,
+            mk5: document.getElementById("mk5").value.trim(),
+            tgl5: document.getElementById("tgl5").value,
+            reason: document.getElementById("reason").value.trim()
+        };
+
+        fetch(SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        })
+        .then(() => {
+            btn.disabled = false;
+            btn.textContent = "Kirim Pengajuan";
+
+            resultBox.classList.remove("hidden");
+            resultBox.innerHTML = `
+                <strong style="font-size:16px; color:#18794e;">✓ Pengajuan Berhasil Terkirim & Tersimpan di Google Sheets!</strong><br><br>
+                Nomor Tiket Anda: <b style="font-size:18px; color:#1d5f9e;">${ticketNo}</b><br>
+                <small>Silakan simpan Nomor Tiket ini sebagai bukti pengajuan.</small>
+            `;
+            document.getElementById("sipujaForm").reset();
+        })
+        .catch(err => {
+            alert("Gagal mengirim data. Silakan periksa koneksi internet Anda.");
+            btn.disabled = false;
+            btn.textContent = "Kirim Pengajuan";
+        });
+    });
+</script>
+
+</body>
+</html>
